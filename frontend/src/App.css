@@ -17,6 +17,28 @@
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
+.participant-card {
+  position: relative;
+}
+
+.participant-card .hover-details {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #111;
+  color: #fff;
+  padding: 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  margin-top: 6px;
+  z-index: 20;
+  width: 100%;
+}
+
+.participant-card:hover .hover-details {
+  display: block;
+}
 
 @keyframes logo-spin {
   from {

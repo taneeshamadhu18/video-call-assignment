@@ -97,7 +97,7 @@ def update_media(
     db.refresh(participant)
 
     return participant
-@app.patch("/api/participants/{participant_id}/microphone")
+@app.patch("/participants/{participant_id}/microphone")
 def update_microphone(
     participant_id: int,
     payload: MicrophoneUpdate,
@@ -116,7 +116,7 @@ def update_microphone(
 
     return participant
 
-@app.patch("/api/participants/{participant_id}/camera")
+@app.patch("/participants/{participant_id}/camera")
 def update_camera(
     participant_id: int,
     payload: CameraUpdate,
@@ -135,7 +135,7 @@ def update_camera(
 
     return participant
 
-@app.patch("/api/participants/{participant_id}/status")
+@app.patch("/participants/{participant_id}/status")
 def update_status(
     participant_id: int,
     payload: StatusUpdate,

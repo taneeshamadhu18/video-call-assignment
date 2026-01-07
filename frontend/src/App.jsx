@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
+import "./App.css";
 
 function App() {
   const [participants, setParticipants] = useState([]);
@@ -7,6 +8,7 @@ function App() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [page, setPage] = useState(0);
+  const [view, setView] = useState("grid"); // grid | list
 
   // UX states
   const [loading, setLoading] = useState(false);
@@ -89,32 +91,48 @@ function App() {
 
   /* ================= UX STATES ================= */
 
-  if (loading) {
-    return <h2 style={{ padding: "20px" }}>Loading participants...</h2>;
-  }
+  if (loading) return <h2 style={{ padding: "20px" }}>Loading participants...</h2>;
 
-  if (error) {
+  if (error)
     return (
       <div style={{ padding: "20px", color: "red" }}>
         <h3>{error}</h3>
       </div>
     );
-  }
 
-  if (!loading && participants.length === 0) {
+  if (participants.length === 0)
     return (
       <div style={{ padding: "20px" }}>
         <h3>No participants found</h3>
-        <p>Try adjusting your search.</p>
       </div>
     );
-  }
 
   /* ================= MAIN UI ================= */
 
   return (
     <div style={{ padding: "20px" }}>
       <h1>Video Call Participants</h1>
+
+      {/* 🔁 Grid / List Toggle */}
+      <div style={{ marginBottom: "16px" }}>
+        <button
+          onClick={() => setView("grid")}
+          style={{
+            marginRight: "10px",
+            fontWeight: view === "grid" ? "bold" : "normal",
+          }}
+        >
+          Grid View
+        </button>
+        <button
+          onClick={() => setView("list")}
+          style={{
+            fontWeight: view === "list" ? "bold" : "normal",
+          }}
+        >
+          List View
+        </button>
+      </div>
 
       {/* 🔍 Search */}
       <input
@@ -125,22 +143,35 @@ function App() {
         style={{ padding: "8px", marginBottom: "20px", width: "250px" }}
       />
 
-      {/* 🧱 Grid */}
+      {/* 🧱 Container */}
       <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-          gap: "15px",
-        }}
+        style={
+          view === "grid"
+            ? {
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "15px",
+              }
+            : {
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+              }
+        }
       >
         {participants.map((p) => (
           <div
             key={p.id}
+            className="participant-card"
             onClick={() => setSelected(p)}
             style={{
               border: "1px solid #ccc",
               padding: "12px",
               cursor: "pointer",
+              position: "relative",
+              display: view === "list" ? "flex" : "block",
+              gap: view === "list" ? "16px" : "unset",
+              alignItems: view === "list" ? "center" : "unset",
             }}
           >
             {/* Avatar */}
@@ -155,47 +186,37 @@ function App() {
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: "bold",
-                marginBottom: "8px",
               }}
             >
               {getInitials(p.name)}
             </div>
 
-            <strong>{p.name}</strong> ({p.role})
+            <div style={{ flex: 1 }}>
+              <strong>{p.name}</strong> ({p.role})
+              <div style={{ fontSize: "12px" }}>
+                {p.online ? "🟢 Online" : "⚪ Offline"}
+              </div>
 
-            {/* Online status */}
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  background: p.online ? "limegreen" : "gray",
-                }}
-              />
-              <span style={{ fontSize: "12px" }}>
-                {p.online ? "Online" : "Offline"}
-              </span>
-            </div>
-
-            {/* Video preview */}
-            <div
-              style={{
-                marginTop: "8px",
-                height: "100px",
-                background: "#000",
-                color: "#aaa",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "12px",
-              }}
-            >
-              Video Preview
+              {view === "grid" && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    height: "80px",
+                    background: "#000",
+                    color: "#aaa",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "12px",
+                  }}
+                >
+                  Video Preview
+                </div>
+              )}
             </div>
 
             {/* Controls */}
-            <div style={{ marginTop: "10px" }}>
+            <div>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -204,16 +225,23 @@ function App() {
               >
                 🎤 {p.mic_on ? "Mute" : "Unmute"}
               </button>
-
               <button
-                style={{ marginLeft: "10px" }}
+                style={{ marginLeft: "8px" }}
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleMedia(p, "camera");
                 }}
               >
-                📷 {p.camera_on ? "Turn Off" : "Turn On"}
+                📷 {p.camera_on ? "Off" : "On"}
               </button>
+            </div>
+
+            {/* Hover details */}
+            <div className="hover-details">
+              <p><b>Email:</b> {p.email}</p>
+              <p><b>Status:</b> {p.online ? "Online" : "Offline"}</p>
+              <p><b>Mic:</b> {p.mic_on ? "On" : "Muted"}</p>
+              <p><b>Camera:</b> {p.camera_on ? "On" : "Off"}</p>
             </div>
           </div>
         ))}
@@ -229,7 +257,7 @@ function App() {
         </button>
       </div>
 
-      {/* 🪟 Detail Modal */}
+      {/* 🪟 Modal */}
       {selected && (
         <div
           style={{
@@ -248,7 +276,7 @@ function App() {
           >
             <div
               style={{
-                height: "180px",
+                height: "160px",
                 background: "#000",
                 color: "#aaa",
                 display: "flex",
@@ -260,23 +288,25 @@ function App() {
               Large Video Preview
             </div>
 
-            <div style={{ marginBottom: "12px" }}>
-              <button onClick={() => toggleMedia(selected, "mic")}>
-                🎤 {selected.mic_on ? "Mute" : "Unmute"}
-              </button>
-              <button
-                style={{ marginLeft: "10px" }}
-                onClick={() => toggleMedia(selected, "camera")}
-              >
-                📷 {selected.camera_on ? "Turn Off" : "Turn On"}
-              </button>
-            </div>
+            <button onClick={() => toggleMedia(selected, "mic")}>
+              🎤 {selected.mic_on ? "Mute" : "Unmute"}
+            </button>
+            <button
+              style={{ marginLeft: "10px" }}
+              onClick={() => toggleMedia(selected, "camera")}
+            >
+              📷 {selected.camera_on ? "Off" : "On"}
+            </button>
 
             <h3>{selected.name}</h3>
-            <p>Email: {selected.email}</p>
-            <p>Role: {selected.role}</p>
+            <p>{selected.email}</p>
+            <p>{selected.about_me}</p>
 
-            <button onClick={() => setSelected(null)}>Close</button>
+            {selected.resume_url && (
+              <a href={selected.resume_url} target="_blank">
+                View Resume
+              </a>
+            )}
           </div>
         </div>
       )}

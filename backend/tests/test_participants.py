@@ -16,14 +16,20 @@ def test_search_participant():
 
 
 def test_toggle_microphone():
-    res = client.patch("/api/participants/1/microphone", json={"mic_on": False})
-
+    res = client.patch(
+        "/participants/1/media",
+        json={"mic_on": False}
+    )
 
     assert res.status_code == 200
     assert res.json()["mic_on"] is False
 
 
 def test_toggle_camera():
-    res = client.patch("/api/participants/1/camera", json={"camera_on": False})
+    res = client.patch(
+        "/participants/1/media",
+        json={"camera_on": False}
+    )
+
     assert res.status_code == 200
     assert res.json()["camera_on"] is False
