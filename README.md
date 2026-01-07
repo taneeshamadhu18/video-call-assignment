@@ -1,10 +1,9 @@
-# Video Call Participants Management System
+# AiRoHire Participants Management System - Frontend
 
-A full-stack web application for managing video call participants with real-time media controls, search functionality, and a modern responsive UI.
+A modern React frontend for managing AiRoHire participants with real-time media controls, search functionality, and responsive design.
 
 ## 🚀 Features
 
-### Frontend (React + Vite)
 - **Participant Management**: Search, filter, and paginate through participants
 - **Real-time Media Controls**: Toggle microphone and camera states
 - **Dual Media Support**: Both database-persisted and real webcam/microphone integration
@@ -14,87 +13,18 @@ A full-stack web application for managing video call participants with real-time
 - **State Persistence**: Survives page refreshes
 - **Modern UI**: Smooth animations, hover effects, and professional design
 
-### Backend (FastAPI + PostgreSQL)
-- **REST APIs**: Complete CRUD operations for participants
-- **Search & Pagination**: Debounced search with pagination support
-- **Data Integrity**: Timestamp tracking for creation and updates
-- **Error Handling**: Comprehensive logging and validation
-- **CORS Configuration**: Multi-port development support
-
-## 🏗️ Architecture
-
-```
-Frontend (React) → REST APIs (FastAPI) → PostgreSQL Database
-```
-
-### Database Schema
-```sql
-participants (
-  id: Primary Key
-  name: VARCHAR
-  email: VARCHAR
-  role: VARCHAR (Host/Guest)
-  online: BOOLEAN
-  mic_on: BOOLEAN
-  camera_on: BOOLEAN
-  about_me: TEXT
-  resume_url: VARCHAR (optional)
-  created_at: TIMESTAMP
-  updated_at: TIMESTAMP
-)
-```
-
 ## 🛠️ Setup Instructions
 
 ### Prerequisites
-- Python 3.9+
-- Node.js 16+
-- PostgreSQL 13+
+- Node.js 16+ 
+- npm or yarn
+- Backend API running (see backend README)
 
-### Backend Setup
+### Installation
 
-1. **Clone and Navigate**
+1. **Navigate to Frontend Directory**
    ```bash
-   git clone <repository-url>
-   cd video-call-assignment/backend
-   ```
-
-2. **Create Virtual Environment**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
-
-3. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Database Setup**
-   ```bash
-   # Create PostgreSQL database
-   createdb video_call_db
-   
-   # Create tables
-   python create_tables.py
-   
-   # Add timestamp columns (migration)
-   python add_timestamps.py
-   
-   # Seed sample data
-   python seed_data.py
-   ```
-
-5. **Start Backend Server**
-   ```bash
-   uvicorn main:app --reload --port 8000
-   ```
-
-### Frontend Setup
-
-1. **Navigate to Frontend**
-   ```bash
-   cd ../frontend
+   cd frontend
    ```
 
 2. **Install Dependencies**
@@ -102,219 +32,240 @@ participants (
    npm install
    ```
 
-3. **Start Development Server**
+3. **Environment Configuration**
+   - Ensure backend API is running on `http://localhost:8000`
+   - Frontend will automatically connect to backend API
+
+4. **Start Development Server**
    ```bash
    npm run dev
    ```
 
-The application will be available at:
-- **Frontend**: http://localhost:5173 (or next available port)
-- **Backend**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+5. **Access Application**
+   - Frontend: http://localhost:5173 (or next available port)
+   - The app will automatically open in your browser
 
-## 📡 API Design
+### Available Scripts
 
-### Core Endpoints
-
-#### Participant Management
-```
-GET    /participants              # List participants with search & pagination
-GET    /participants/count        # Get total participant count
-GET    /participants/{id}         # Get single participant details
-```
-
-#### Media Controls
-```
-PATCH  /participants/{id}/media   # Update both mic and camera
-PATCH  /participants/{id}/microphone  # Update microphone only
-PATCH  /participants/{id}/camera      # Update camera only
-PATCH  /participants/{id}/status      # Update online status
-```
-
-### Request/Response Examples
-
-**Get Participants**
 ```bash
-curl "http://localhost:8000/participants?search=Alice&limit=6&offset=0"
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run test         # Run tests (Vitest)
+npm run test:ui      # Run tests with UI
+npm run test:coverage # Run tests with coverage
 ```
 
-**Update Microphone**
-```bash
-curl -X PATCH "http://localhost:8000/participants/1/microphone" \
-  -H "Content-Type: application/json" \
-  -d '{"mic_on": false}'
+## 🏗️ Architecture Overview
+
+### Component Architecture
+```
+App (Root Component)
+├── ThemeToggle          # Theme switching functionality
+├── LoadingSpinner       # Loading state component
+├── ErrorMessage         # Error handling component
+├── AudioLevelVisualizer # Real-time audio visualization
+├── ParticipantCard      # Individual participant display
+├── ParticipantModal     # Detailed participant view
+└── TimeAgo             # Relative time display
 ```
 
-## 🧪 Testing
+### State Management
+- **React Hooks**: useState, useEffect for local state
+- **Custom Hooks**: useDebounce for search optimization
+- **Persistence**: localStorage/sessionStorage for state persistence
+- **Media State**: Separate state for real camera/microphone access
 
-### Frontend Tests (Vitest + React Testing Library)
-```bash
-cd frontend
-npm run test          # Run tests
-npm run test:ui       # Run with UI
-npm run test:coverage # Run with coverage
-```
-
-**Test Coverage:**
-- Component rendering and interactions
-- Search functionality with debouncing
-- Media control toggles
-- Theme switching
-- Modal behavior
-- Error handling scenarios
-- Loading states
-
-### Backend Tests (Pytest)
-```bash
-cd backend
-pytest -v tests/
-```
-
-**Test Coverage:**
-- API endpoint functionality
-- Search and pagination
-- Media state updates
-- Data validation
-- Error responses
-- State persistence
-- Concurrent updates
-
-## 🎨 UI/UX Features
-
-### Design Elements
-- **Modern Card Layout**: Clean participant cards with hover effects
-- **Responsive Grid/List**: Toggle between grid and list views
-- **Audio Visualizer**: Real-time audio level bars
-- **Status Indicators**: Online/offline with color coding
-- **Smooth Animations**: CSS transitions and transforms
-- **Accessibility**: Proper ARIA labels and keyboard navigation
-
-### Theme System
-- **Light/Dark Mode**: System preference detection
-- **CSS Variables**: Consistent color system
-- **Smooth Transitions**: Theme switching animations
-
-## 🔧 Technology Stack
-
-### Frontend
-- **React 19.2.0**: Component-based UI framework
+### Key Dependencies
+- **React 19.2.0**: Core UI framework
 - **Vite 7.2.4**: Fast build tool and dev server
 - **Lucide React**: Modern icon library
 - **Axios**: HTTP client with interceptors
-- **CSS Variables**: Custom properties for theming
 
-### Backend
-- **FastAPI**: Modern Python web framework
-- **SQLAlchemy**: SQL toolkit and ORM
-- **PostgreSQL**: Relational database
-- **Pydantic**: Data validation using Python type hints
-- **Uvicorn**: ASGI web server
-
-### Testing
-- **Frontend**: Vitest, React Testing Library, jsdom
-- **Backend**: Pytest, AsyncClient, SQLite (test DB)
-
-## 📂 Project Structure
-
+### File Structure
 ```
-video-call-assignment/
-├── backend/
-│   ├── main.py              # FastAPI application
-│   ├── models.py            # SQLAlchemy models
-│   ├── database.py          # Database configuration
-│   ├── requirements.txt     # Python dependencies
-│   ├── create_tables.py     # Database setup
-│   ├── add_timestamps.py    # Migration script
-│   ├── seed_data.py         # Sample data
-│   └── tests/
-│       ├── test_main.py     # API tests
-│       └── conftest.py      # Test configuration
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx          # Main application component
-│   │   ├── App.css          # Styling with CSS variables
-│   │   ├── api.js           # API client functions
-│   │   └── tests/
-│   │       ├── App.test.jsx # Component tests
-│   │       └── setup.js     # Test setup
-│   ├── package.json         # Node.js dependencies
-│   └── vitest.config.js     # Test configuration
-└── README.md               # This file
+src/
+├── App.jsx              # Main application component
+├── App.css              # Global styles and themes
+├── api.js               # API client and helper functions
+├── main.jsx             # Application entry point
+├── index.css            # Base styles
+└── tests/
+    ├── App.test.jsx     # Component tests
+    └── setup.js         # Test configuration
 ```
 
-## 🚀 Features Implemented
+## 🔌 API Design Explanation
 
-### Required Features ✅
-- [x] **Participant List**: Searchable, responsive grid/list view
-- [x] **Media Controls**: Mic/camera toggle with persistence
-- [x] **Detail View**: Modal with participant information
-- [x] **Search**: Debounced search with backend filtering
-- [x] **REST APIs**: Complete CRUD operations
-- [x] **PostgreSQL**: Data persistence with timestamps
-- [x] **Responsive Design**: Mobile, tablet, desktop support
-- [x] **Error Handling**: Comprehensive error states
-- [x] **Loading States**: Proper loading indicators
+### API Client (`api.js`)
+- **Axios Instance**: Configured with base URL and timeout
+- **Error Handling**: Comprehensive error interceptors
+- **Helper Functions**: Abstracted API calls with proper error handling
 
-### Bonus Features ✅
-- [x] **Real Webcam Preview**: getUserMedia() integration
-- [x] **Audio Level Visualization**: Web Audio API implementation
-- [x] **Hardware Media State**: Real device control
-- [x] **State Management**: localStorage/sessionStorage persistence
-- [x] **Pagination**: Server-side pagination support
+### API Integration Points
 
-## 🎯 Key Implementation Decisions
+#### Participant Management
+```javascript
+fetchParticipants(search, page, limit)    // Get paginated participants
+fetchParticipantCount(search)             // Get total count
+fetchParticipant(id)                      // Get single participant
+```
 
-### Architecture
-- **Separation of Concerns**: Clear API layer, component structure
-- **State Management**: React hooks with persistence
-- **Error Boundaries**: Comprehensive error handling
-- **Performance**: Debounced search, optimistic updates
+#### Media Controls
+```javascript
+updateParticipantMicrophone(id, micOn)    // Toggle microphone
+updateParticipantCamera(id, cameraOn)     // Toggle camera
+updateParticipantStatus(id, online)       // Update online status
+```
 
-### Database Design
-- **Timestamps**: Automatic creation/update tracking
-- **Flexible Schema**: Support for future extensions
-- **Indexing**: Optimized for search operations
+### Error Handling Strategy
+- **Request Interceptors**: Automatic timeout and retry logic
+- **Response Interceptors**: Centralized error logging
+- **UI Error States**: User-friendly error messages
+- **Fallback Mechanisms**: Graceful degradation
 
-### UI/UX Design
-- **Progressive Enhancement**: Works without JavaScript
-- **Accessibility**: Screen reader friendly
-- **Performance**: Smooth 60fps animations
-- **Consistency**: Design system approach
+### Data Flow
+```
+User Action → Component State → API Call → Backend → Database
+     ↓              ↑              ↓          ↓         ↓
+UI Update ← State Update ← Response ← API ← Database
+```
 
-## 📈 Performance Optimizations
+## 🗄️ Database Design Rationale
 
-- **Debounced Search**: 300ms delay to reduce API calls
+### Frontend Data Modeling
+
+#### Participant Object Structure
+```javascript
+{
+  id: number,              // Unique identifier
+  name: string,            // Full name
+  email: string,           // Contact email
+  role: "Host" | "Guest",  // Participant role
+  online: boolean,         // Current status
+  mic_on: boolean,         // Microphone state
+  camera_on: boolean,      // Camera state
+  about_me: string,        // Description
+  resume_url: string,      // Optional resume link
+  created_at: string,      // ISO timestamp
+  updated_at: string       // ISO timestamp
+}
+```
+
+#### State Management Rationale
+
+**Local State Organization:**
+- `participants`: Array of participant objects
+- `search`: Search query string
+- `page`: Current pagination page
+- `view`: Display mode (grid/list)
+- `theme`: UI theme preference
+- `realMediaStates`: Hardware media access states
+
+**Persistence Strategy:**
+- **localStorage**: User preferences (theme, view, search, page)
+- **sessionStorage**: Temporary states (real media access)
+- **Component State**: UI-specific temporary states
+
+### Data Synchronization
 - **Optimistic Updates**: Immediate UI feedback
-- **Efficient Re-renders**: React.memo and useCallback
-- **Asset Optimization**: Vite's built-in optimizations
+- **Error Recovery**: Revert on API failure
+- **Timestamp Tracking**: Display relative time for updates
+- **State Consistency**: Backend as source of truth
 
-## 🔮 Future Enhancements
+### Performance Optimizations
+- **Debounced Search**: 300ms delay to reduce API calls
+- **Pagination**: Limit data fetching to 6 items per page
+- **Memoization**: Prevent unnecessary re-renders
+- **Lazy Loading**: Progressive data loading
 
-- [ ] WebSocket integration for real-time updates
-- [ ] Video recording and playback
-- [ ] Screen sharing capabilities
-- [ ] Chat functionality
-- [ ] User authentication
-- [ ] Room management
-- [ ] Advanced audio effects
+## 🎨 UI/UX Design Principles
 
-## 📸 Screenshots
+### Responsive Design
+- **Mobile First**: Progressive enhancement approach
+- **Breakpoints**: 640px, 768px, 1024px
+- **Flexible Grid**: CSS Grid with responsive columns
+- **Touch Friendly**: Large tap targets for mobile
 
-*Note: Add screenshots showing the grid view, list view, dark mode, and modal interactions*
+### Theme System
+- **CSS Variables**: Consistent color system
+- **Dark/Light Mode**: System preference detection
+- **Smooth Transitions**: Theme switching animations
+- **Accessibility**: Proper contrast ratios
 
-## 🤝 Contributing
+### Component Design
+- **Atomic Design**: Reusable component architecture
+- **Props Interface**: Clear component APIs
+- **Error Boundaries**: Graceful error handling
+- **Loading States**: Progressive disclosure
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+## 🔧 Development Workflow
 
-## 📄 License
+### Code Quality
+- **ESLint**: Code linting and style enforcement
+- **Prettier**: Code formatting (if configured)
+- **Component Testing**: React Testing Library
+- **Type Safety**: PropTypes validation
 
-This project is created as a technical assignment and is for evaluation purposes.
+### Testing Strategy
+- **Unit Tests**: Component behavior testing
+- **Integration Tests**: API interaction testing
+- **UI Tests**: User interaction testing
+- **Error Scenarios**: Edge case handling
+
+### Build Optimization
+- **Vite Bundling**: Fast development and production builds
+- **Code Splitting**: Automatic chunk splitting
+- **Asset Optimization**: Image and resource optimization
+- **Tree Shaking**: Dead code elimination
+
+## 📱 Browser Compatibility
+
+### Supported Browsers
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+### Required APIs
+- **getUserMedia**: Camera and microphone access
+- **Web Audio API**: Audio visualization
+- **CSS Grid**: Layout system
+- **ES6 Modules**: Modern JavaScript features
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+npm run build        # Creates dist/ directory
+npm run preview      # Test production build locally
+```
+
+### Environment Variables
+- No environment variables required for basic setup
+- API URL can be configured in `api.js`
+
+### Hosting Options
+- **Vercel**: Automatic deployment from Git
+- **Netlify**: Static site hosting
+- **AWS S3**: Static website hosting
+- **GitHub Pages**: Free hosting option
+
+## 🔍 Troubleshooting
+
+### Common Issues
+1. **Media Access Denied**: Check browser permissions
+2. **API Connection**: Verify backend is running
+3. **Port Conflicts**: Vite will find next available port
+4. **Build Errors**: Clear node_modules and reinstall
+
+### Development Tips
+- Use browser DevTools for debugging
+- Check Network tab for API calls
+- Enable React DevTools extension
+- Monitor console for errors and warnings
 
 ---
 
-**Total Development Time**: ~6-8 hours  
-**Assignment Completion**: All required features + bonus features implemented
+This frontend provides a robust, scalable foundation for video call participant management with modern React patterns and comprehensive feature set.
