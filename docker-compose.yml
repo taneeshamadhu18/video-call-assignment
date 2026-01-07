@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: airohire_postgres
+    environment:
+      POSTGRES_DB: video_call_app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d video_call_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - airohire_network
+
+  # Backend API
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: airohire_backend
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/video_call_app
+      - PYTHONPATH=/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    networks:
+      - airohire_network
+    restart: unless-stopped
+
+  # Database Initialization & Seed Data
+  db-setup:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: airohire_db_setup
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/video_call_app
+      - PYTHONPATH=/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - airohire_network
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        sleep 5 &&
+        echo 'Creating database tables...' &&
+        python create_tables.py &&
+        echo 'Seeding database with initial data...' &&
+        python seed_data.py &&
+        echo 'Database setup completed!'
+      "
+    restart: "no"
+
+  # Frontend
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: airohire_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - airohire_network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy (Optional - for production)
+  nginx:
+    image: nginx:alpine
+    container_name: airohire_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - airohire_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  airohire_network:
+    driver: bridge
