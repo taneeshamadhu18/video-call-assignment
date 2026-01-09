@@ -1,6 +1,6 @@
-# AiRoHire Participants Management System - Frontend
+# AiRoHire Participants Management System
 
-A modern React frontend for managing AiRoHire participants with real-time media controls, search functionality, and responsive design.
+A modern React web application for managing AiRoHire participants with real-time media controls, search functionality, and responsive design.
 
 ## 🚀 Features
 
